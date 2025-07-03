@@ -91,21 +91,21 @@ const CardEffect = ({ cardData }) => {
           <div className="flex justify-between items-start">
             {cardType === 'visa' && (
               <img 
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/visa/visa-original.svg" 
+                src="https://img.icons8.com/color/512/visa.png" 
                 alt="Visa" 
                 className="h-10 opacity-90" 
               />
             )}
             {cardType === 'mastercard' && (
               <img 
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mastercard/mastercard-original.svg" 
+                src="https://w7.pngwing.com/pngs/92/785/png-transparent-mastercard-logo-mastercard-credit-card-payment-visa-nyse-ma-mastercard-logo-text-logo-sign.png" 
                 alt="Mastercard" 
                 className="h-10 opacity-90" 
               />
             )}
             {cardType === 'amex' && (
               <img 
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/americanexpress/americanexpress-original.svg" 
+                src="https://w7.pngwing.com/pngs/745/624/png-transparent-american-express-logo-credit-card-payment-credit-card-blue-text-label-thumbnail.png" 
                 alt="Amex" 
                 className="h-10 opacity-90" 
               />
@@ -139,21 +139,21 @@ const CardEffect = ({ cardData }) => {
           <div className="flex justify-end">
             {cardType === 'visa' && (
               <img 
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/visa/visa-original.svg" 
+                src="https://img.icons8.com/color/512/visa.png" 
                 alt="Visa" 
                 className="h-8 opacity-90" 
               />
             )}
             {cardType === 'mastercard' && (
               <img 
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mastercard/mastercard-original.svg" 
+                src="https://w7.pngwing.com/pngs/92/785/png-transparent-mastercard-logo-mastercard-credit-card-payment-visa-nyse-ma-mastercard-logo-text-logo-sign.png" 
                 alt="Mastercard" 
                 className="h-8 opacity-90" 
               />
             )}
             {cardType === 'amex' && (
               <img 
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/americanexpress/americanexpress-original.svg" 
+                src="https://w7.pngwing.com/pngs/745/624/png-transparent-american-express-logo-credit-card-payment-credit-card-blue-text-label-thumbnail.png" 
                 alt="Amex" 
                 className="h-8 opacity-90" 
               />
@@ -201,6 +201,7 @@ const PaymentForm = ({ plan, onPaymentSubmit, isSubmitting }) => {
   const [errors, setErrors] = useState({});
   const [saveCard, setSaveCard] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showServiceUnavailable, setShowServiceUnavailable] = useState(false);
 
   const getCardType = (cardNumber) => {
     const cleaned = cardNumber.replace(/\s+/g, '');
@@ -239,11 +240,7 @@ const PaymentForm = ({ plan, onPaymentSubmit, isSubmitting }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      onPaymentSubmit({
-        ...cardData,
-        saveCard: saveCard
-      });
-      setShowSuccess(true);
+      setShowServiceUnavailable(true); // Mostrar el aviso
     }
   };
 
@@ -299,13 +296,13 @@ const PaymentForm = ({ plan, onPaymentSubmit, isSubmitting }) => {
               {cardData.cardNumber.replace(/\s/g, '').length > 0 && (
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                   {getCardType(cardData.cardNumber) === 'Visa' && (
-                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/visa/visa-original.svg" alt="Visa" className="h-6" />
+                    <img src="https://img.icons8.com/color/48/000000/visa.png" alt="Visa" className="h-6" />
                   )}
                   {getCardType(cardData.cardNumber) === 'Mastercard' && (
-                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mastercard/mastercard-original.svg" alt="Mastercard" className="h-6" />
+                    <img src="https://img.icons8.com/color/48/000000/mastercard-logo.png" alt="Mastercard" className="h-6" />
                   )}
                   {getCardType(cardData.cardNumber) === 'American Express' && (
-                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/americanexpress/americanexpress-original.svg" alt="Amex" className="h-6" />
+                    <img src="https://img.icons8.com/color/48/000000/amex.png" alt="Amex" className="h-6" />
                   )}
                 </div>
               )}
@@ -375,8 +372,11 @@ const PaymentForm = ({ plan, onPaymentSubmit, isSubmitting }) => {
       <div className="flex items-center gap-2 text-sm text-gray-500">
         <Lock className="w-4 h-4 text-green-500" />
         <span>Pago seguro encriptado con SSL. Aceptamos todas las tarjetas principales.</span>
+          <img src="https://img.icons8.com/color/48/000000/visa.png" alt="Visa" className="h-6" />
+  <img src="https://img.icons8.com/color/48/000000/mastercard-logo.png" alt="Mastercard" className="h-6" />
+  <img src="https://img.icons8.com/color/48/000000/amex.png" alt="Amex" className="h-6" />
+
       </div>
-      <AcceptedCards />
       <button
         type="submit"
         onClick={handleSubmit}
@@ -386,10 +386,11 @@ const PaymentForm = ({ plan, onPaymentSubmit, isSubmitting }) => {
         }`}
       >
         {isSubmitting ? (
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            Procesando Pago...
-          </div>
+         <div className="flex items-center gap-2 text-sm text-gray-500">
+  <Lock className="w-4 h-4 text-green-500" />
+          Procesando pago...
+          <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+</div>
         ) : (
           <div className="flex items-center justify-center gap-2">
             <CreditCard className="w-5 h-5" />
@@ -398,6 +399,36 @@ const PaymentForm = ({ plan, onPaymentSubmit, isSubmitting }) => {
         )}
       </button>
       {showSuccess && <PaymentSuccess onClose={() => setShowSuccess(false)} />}
+      {showServiceUnavailable && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center">
+            <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CreditCard className="w-10 h-10 text-yellow-600" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Servicio no disponible</h3>
+            <p className="text-gray-600 mb-6">
+              El pago con tarjeta no está disponible por el momento.<br />
+              <span className="font-semibold text-green-600">No se realizará ningún cobro.</span><br />
+              Puedes disfrutar el servicio gratis.
+            </p>
+            <button
+              onClick={() => {
+                setShowServiceUnavailable(false);
+                // Llama a la función para activar el usuario y mostrar el dashboard
+                onPaymentSubmit({
+                  ...cardData,
+                  saveCard,
+                  metodo: 'Tarjeta (servicio no disponible)'
+                });
+                setShowSuccess(true); // Opcional: puedes mostrar el modal de éxito si lo deseas
+              }}
+              className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-xl transition-colors"
+            >
+              Continuar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

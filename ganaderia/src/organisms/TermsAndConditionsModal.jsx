@@ -3,60 +3,60 @@ import { FiX, FiCheck, FiFileText, FiShield } from 'react-icons/fi';
 
 const TermsAndConditionsModal = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const [hasAccepted, setHasAccepted] = useState(false);
+  const [hasAccepted, setHasAccepted] = useState(() => {
+    // Verificar en localStorage al inicializar el estado
+    return localStorage.getItem('termsAccepted') === 'true';
+  });
 
   useEffect(() => {
-    const termsAccepted = localStorage.getItem('termsAccepted');
-    if (!termsAccepted) {
+    // Solo mostrar si no ha sido aceptado
+    if (!hasAccepted) {
       const timer = setTimeout(() => {
         setIsVisible(true);
       }, 1500);
       return () => clearTimeout(timer);
-    } else {
-      setIsVisible(false); // <-- Asegura que no se muestre si ya aceptó
     }
-  }, []);
+  }, [hasAccepted]);
 
   const handleAccept = () => {
+    // Guardar en localStorage
     localStorage.setItem('termsAccepted', 'true');
     localStorage.setItem('termsAcceptedDate', new Date().toISOString());
+    // Actualizar estados
     setHasAccepted(true);
-    setTimeout(() => {
-      setIsVisible(false);
-    }, 300);
+    setIsVisible(false);
   };
 
   const handleDecline = () => {
-    // Redirigir a Google cuando se rechazan los términos
     window.location.href = 'https://www.google.com';
   };
 
   useEffect(() => {
+    // Controlar el scroll del body
     if (isVisible) {
       document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
     }
-    
     return () => {
       document.body.style.overflow = '';
     };
   }, [isVisible]);
 
-  if (!isVisible) return null;
+  // No renderizar si ya fue aceptado
+  if (hasAccepted || !isVisible) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      {/* Overlay café arena semitransparente */}
-      <div className="absolute inset-0 bg-amber-900/80 backdrop-blur-sm" />
+      {/* Fondo semitransparente */}
+      <div 
+        className="absolute inset-0 bg-amber-900/80 backdrop-blur-sm"
+        onClick={handleDecline}
+      />
       
-      {/* Modal con diseño café arena */}
-      <div className={`
-        relative bg-amber-50 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border-2 border-amber-200
-        transform transition-all duration-300 ease-out
-        ${hasAccepted ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}
-      `}>
-        {/* Header con gradiente café */}
+      {/* Contenedor del modal */}
+      <div className="relative bg-amber-50 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border-2 border-amber-200">
+        {/* Header */}
         <div className="bg-gradient-to-r from-amber-700 to-amber-600 px-6 py-4 text-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -78,7 +78,7 @@ const TermsAndConditionsModal = () => {
           </div>
         </div>
 
-        {/* Contenido */}
+        {/* Contenido desplazable */}
         <div className="p-6 overflow-y-auto max-h-[60vh]">
           <div className="prose prose-sm max-w-none">
             <div className="mb-6">
@@ -130,7 +130,7 @@ const TermsAndConditionsModal = () => {
           </div>
         </div>
 
-        {/* Footer */}
+        {/* Footer con botones */}
         <div className="bg-amber-100/30 px-6 py-4 border-t border-amber-200">
           <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
             <button
