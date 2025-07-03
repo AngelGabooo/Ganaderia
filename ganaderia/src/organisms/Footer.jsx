@@ -83,7 +83,7 @@ const Footer = () => {
               
               {/* Facebook */}
               <a 
-                href="#" 
+                href="https://www.facebook.com/profile.php?id=61577809562807" 
                 className="h-10 w-10 rounded-full bg-amber-700 hover:bg-amber-600 flex items-center justify-center transition-colors"
                 aria-label="Facebook"
               >
@@ -94,7 +94,7 @@ const Footer = () => {
               
               {/* Instagram */}
               <a 
-                href="#" 
+                href="https://www.instagram.com/eg_angel2/" 
                 className="h-10 w-10 rounded-full bg-amber-700 hover:bg-amber-600 flex items-center justify-center transition-colors"
                 aria-label="Instagram"
               >
@@ -105,7 +105,7 @@ const Footer = () => {
               
               {/* Twitter */}
               <a 
-                href="#" 
+                href="/dashboard" 
                 className="h-10 w-10 rounded-full bg-amber-700 hover:bg-amber-600 flex items-center justify-center transition-colors"
                 aria-label="Twitter"
               >
