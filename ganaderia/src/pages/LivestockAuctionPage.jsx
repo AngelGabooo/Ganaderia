@@ -59,9 +59,9 @@ const LivestockAuctionPage = () => {
       retailValue: 4850,
       color: 'Negro',
       images: [
-        'https://images.unsplash.com/photo-1549318581-ec37ba9f2413?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-        'https://images.unsplash.com/photo-1545460580-36c1957cfde1?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-        'https://images.unsplash.com/photo-1545468800-85cc9bc6ecf7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+        'https://formato7.com/wp-content/uploads/2025/03/1-93.jpg',
+        'https://ganaderiadepincha.com/wp-content/uploads/2023/05/Toro_De_Lidia-scaled-600x400.jpg',
+        'https://cultoro.es/wp-content/uploads/2024/02/toro-cercado-1.jpg'
       ],
       auctionEnd: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
       runAndDrive: true,
@@ -96,8 +96,8 @@ const LivestockAuctionPage = () => {
       retailValue: 4200,
       color: 'Blanco y rojo',
       images: [
-        'https://images.unsplash.com/photo-1500595046743-cd271d694d30?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-        'https://images.unsplash.com/photo-1545460580-36c1957cfde1?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+        'https://lh6.googleusercontent.com/XMTv0dw1vf8HeYrNwyluYONqJXccoXk5QOidrxx5W_pOrXQ1nz7JWai6C12nmCV9v2DnsCEzo26htsfzJmiZrq69fFYeTyGFhf1DJ2hR4tWCbIj6P7NQ1JNRP0fuN2fYF9w9-gGTY_cqWH-Kh7kKTvI',
+        'https://www.gob.mx/cms/uploads/image/file/897223/WhatsApp_Image_2023-01-30_at_4.35.00_PM-4.jpeg'
       ],
       auctionEnd: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       runAndDrive: true,
@@ -126,14 +126,50 @@ const LivestockAuctionPage = () => {
       location: 'FL - Miami Central',
       price: 3800,
       bidPrice: 1800,
+      status: 'Campeón',
+      primaryDamage: 'Problema digestivo leve',
+      secondaryDamage: 'Ninguno',
+      retailValue: 3800,
+      color: 'Rojo',
+      images: [
+        'https://diariolaeconomia.com/media/k2/items/cache/891bc0e45e0849a552d0ba70b9f8ec5e_XL.jpg',
+        'https://revistageneticabovina.com/wp-content/uploads/2020/04/Toro-Singin-rojo.jpg'
+      ],
+      auctionEnd: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
+      runAndDrive: false,
+      pedigree: {
+        father: 'Sultán Brahman',
+        mother: 'Perla 456',
+        grandparents: ['Gran Brahman', 'Estrella Gris']
+      },
+      performance: {
+        growthRate: '1.0 kg/día',
+        awards: []
+      },
+      health: {
+        lastCheckup: '2023-07-01',
+        vaccinations: ['Fiebre aftosa'],
+        diet: 'Dieta especial + medicamentos'
+      }
+    },
+     {
+      id: 4,
+      lotNumber: 'G-2025-08967',
+      type: 'Toro',
+      breed: 'Brahman',
+      age: '2 años 8 meses',
+      weight: '520 kg',
+      location: 'FL - Miami Central',
+      price: 3800,
+      bidPrice: 1800,
       status: 'En tratamiento',
       primaryDamage: 'Problema digestivo leve',
       secondaryDamage: 'Ninguno',
       retailValue: 3800,
-      color: 'Gris',
+      color: 'Apache',
       images: [
-        'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-        'https://images.unsplash.com/photo-1545460580-36c1957cfde1?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+        'https://lastalas.com.py/wp-content/uploads/2022/11/VL-Rojo-Apache-1-50-retocado.jpg',
+        'https://lastalas.com.py/wp-content/uploads/2022/11/VL-Rojo-Apache-1-50-retocado.jpg'
       ],
       auctionEnd: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
       runAndDrive: false,
