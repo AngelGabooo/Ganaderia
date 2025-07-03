@@ -13,7 +13,7 @@ const Header = ({ user, onLogout }) => {
     <header className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold text-green-600">AgroChiapas Pro</h1>
+          <h1 className="text-2xl font-bold text-green-600">GANARED</h1>
           <button
             onClick={() => navigate('/')}
             className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
@@ -1533,7 +1533,7 @@ const AgroChiapasBusinessApp = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-900">Cargando AgroChiapas Pro</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Cargando GANARED</h2>
           <p className="text-gray-600">Preparando tu experiencia empresarial...</p>
         </div>
       </div>
