@@ -7,13 +7,13 @@ const TermsAndConditionsModal = () => {
 
   useEffect(() => {
     const termsAccepted = localStorage.getItem('termsAccepted');
-    
     if (!termsAccepted) {
       const timer = setTimeout(() => {
         setIsVisible(true);
       }, 1500);
-      
       return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false); // <-- Asegura que no se muestre si ya aceptó
     }
   }, []);
 

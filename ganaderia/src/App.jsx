@@ -19,9 +19,9 @@ import MaquinariaSurPage from './pages/MaquinariaSurPage';
 import SemillasPremiumPage from './pages/SemillasPremiumPage';
 import TransporteGanaderoPage from './pages/TransporteGanaderoPage';
 import ContactPage from './pages/ContactPage';
-import TermsModal from './organisms/TermsModal';
 import FloatingAlerts from './pages/FloatingAlerts';
-import LivestockAuctionPage from './pages/LivestockAuctionPage'; // Importa la nueva página de subastas
+import LivestockAuctionPage from './pages/LivestockAuctionPage';
+import TermsAndConditionsModal from './organisms/TermsAndConditionsModal'; // Importa el nuevo componente
 
 function App() {
   return (
@@ -30,7 +30,7 @@ function App() {
         <ScrollToTop />
         
         {/* Componente de términos y condiciones */}
-        <TermsModal />
+        <TermsAndConditionsModal />
         
         {/* Componente de alertas flotantes */}
         <FloatingAlerts />

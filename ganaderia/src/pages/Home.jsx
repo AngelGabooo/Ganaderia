@@ -7,7 +7,6 @@ import Products from '../organisms/Products';
 import LivestockCatalog from '../organisms/LivestockCatalog';
 import SubscriptionPlans from '../organisms/SubscriptionPlans';
 import FeedCalculator from '../organisms/FeedCalculator';
-import TestimonialsSection from '../organisms/TestimonialsSection';
 import VerifiedProducersSection from '../organisms/VerifiedProducersSection';
 import Footer from '../organisms/Footer'; 
 
@@ -33,7 +32,6 @@ const Home = () => {
         <LivestockCatalog id="requisitos" />
         <FeedCalculator />
         <SubscriptionPlans />
-        <TestimonialsSection id="contactos" />
         <VerifiedProducersSection />
       </main>
       <Footer /> {/* Agrega el Footer aquí */}
