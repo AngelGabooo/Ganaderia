@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import emailjs from '@emailjs/browser';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +18,11 @@ const Register = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
 
+  const EMAILJS_SERVICE_ID = 'service_8um02q2';
+  const EMAILJS_USER_TEMPLATE_ID = 'template_14ub86p';
+  const EMAILJS_OWNER_TEMPLATE_ID = 'template_xwasumn';
+  const EMAILJS_PUBLIC_KEY = '4Ij76aQJBG6qaKDik';
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -31,10 +37,10 @@ const Register = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
-    
+
     if (!formData.firstName) newErrors.firstName = 'Nombre es requerido';
     if (!formData.lastName) newErrors.lastName = 'Apellido es requerido';
     if (!formData.email) {
@@ -53,38 +59,63 @@ const Register = () => {
     if (!acceptedTerms) {
       newErrors.terms = 'Debes aceptar los términos y condiciones';
     }
-     if (Object.keys(newErrors).length === 0) {
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
-      
-      // Simular registro exitoso
-      setTimeout(() => {
+
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
         const userData = {
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
-          isSubscribed: false // Por defecto no tiene suscripción
+          isSubscribed: false
         };
-        
+
         localStorage.setItem('userData', JSON.stringify(userData));
-        
+
+        // Enviar correo al usuario
+        // CAMBIO: Asegúrate que 'email' coincida con {{email}} en tu plantilla
+        const userTemplateParams = {
+          user_name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email, // <-- CAMBIO CLAVE: Cambiado de user_email a email
+          message: '¡Gracias por registrarte en nuestro sistema de ganadería!'
+        };
+
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_USER_TEMPLATE_ID, userTemplateParams, EMAILJS_PUBLIC_KEY);
+        console.log('Correo enviado al usuario!');
+
+        // Enviar correo al dueño de la empresa
+        // CAMBIO: Ajustes para que coincida con tu plantilla "Feedback Request"
+        const ownerTemplateParams = {
+          subject: 'Nuevo Registro en el Sistema Ganadero',
+          from_name: `${formData.firstName} ${formData.lastName}`,
+          from_email: formData.email,
+          to_email: 'a20624646@gmail.com', // <-- ADD THIS LINE if the template expects {{to_email}}
+          // OR if the template expects {{email}}:
+          // email: 'a20624646@gmail.com',
+          message: `Un nuevo usuario se ha registrado:\nNombre: ${formData.firstName} ${formData.lastName}\nEmail: ${formData.email}`
+        };
+
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_OWNER_TEMPLATE_ID, ownerTemplateParams, EMAILJS_PUBLIC_KEY);
+        console.log('Correo enviado al dueño de la empresa!');
+
         setShowSuccess(true);
-      }, 1500);
-    }
-    
-    setErrors(newErrors);
-    
-    if (Object.keys(newErrors).length === 0) {
-      setIsLoading(true);
-      setTimeout(() => {
+
+      } catch (error) {
+        console.error('Error al registrar o enviar correos:', error);
+        alert('Ocurrió un error al registrar tu cuenta. Por favor, inténtalo de nuevo.');
+      } finally {
         setIsLoading(false);
-        setShowSuccess(true);
-      }, 1500);
+      }
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Notificación de éxito */}
       {showSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 animate-pop-in">
@@ -100,7 +131,7 @@ const Register = () => {
                 <button
                   onClick={() => {
                     setShowSuccess(false);
-                    navigate('/login'); // Redirige a login en lugar de dashboard
+                    navigate('/login');
                   }}
                   className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                 >
@@ -111,13 +142,11 @@ const Register = () => {
           </div>
         </div>
       )}
-      {/* Elementos decorativos de fondo */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
       <div className="absolute bottom-0 right-0 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
       <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse animation-delay-4000"></div>
       <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse animation-delay-6000"></div>
 
-      {/* Botón para regresar al home */}
       <button 
         onClick={() => navigate('/')}
         className="absolute top-6 left-6 z-50 flex items-center text-slate-600 hover:text-emerald-600 px-4 py-2 rounded-xl transition-all duration-300 hover:bg-white/80 backdrop-blur-sm border border-white/20 hover:border-emerald-200 hover:shadow-lg group"
@@ -130,7 +159,6 @@ const Register = () => {
 
       <div className="relative flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-2xl space-y-8">
-          {/* Header del formulario */}
           <div className="text-center">
             <div className="flex justify-center mb-8">
               <div className="relative">
@@ -161,13 +189,10 @@ const Register = () => {
             </div>
           </div>
 
-          {/* Formulario */}
           <div className="bg-white/80 backdrop-blur-xl py-10 px-8 shadow-2xl sm:rounded-3xl border border-white/20 relative overflow-hidden">
-            {/* Efecto de brillo sutil */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 animate-shimmer"></div>
             
             <form className="space-y-6" onSubmit={handleSubmit}>
-              {/* Nombre y Apellido */}
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
                   <label htmlFor="firstName" className="block text-sm font-semibold text-slate-700">
@@ -232,7 +257,6 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Email */}
               <div className="space-y-2">
                 <label htmlFor="email" className="block text-sm font-semibold text-slate-700">
                   Correo electrónico
@@ -264,7 +288,6 @@ const Register = () => {
                 )}
               </div>
 
-              {/* Contraseñas */}
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
                   <label htmlFor="password" className="block text-sm font-semibold text-slate-700">
@@ -351,7 +374,6 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Términos y condiciones */}
               <div className="flex items-start py-2">
                 <div className="flex items-center h-5">
                   <input
@@ -385,7 +407,6 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Botón de registro */}
               <div className="pt-4">
                 <button
                   type="submit"
@@ -414,7 +435,6 @@ const Register = () => {
               </div>
             </form>
 
-            {/* Separador y enlace al login */}
             <div className="mt-8">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
