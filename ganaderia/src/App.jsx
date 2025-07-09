@@ -21,7 +21,10 @@ import TransporteGanaderoPage from './pages/TransporteGanaderoPage';
 import ContactPage from './pages/ContactPage';
 import FloatingAlerts from './pages/FloatingAlerts';
 import LivestockAuctionPage from './pages/LivestockAuctionPage';
-import TermsAndConditionsModal from './organisms/TermsAndConditionsModal'; // Importa el nuevo componente
+import TermsAndConditionsModal from './organisms/TermsAndConditionsModal'; 
+import DashboardRouter from './pages/DashboardRouter';
+import BusinessDashboard from './pages/Subscriptions';
+
 
 function App() {
   return (
@@ -44,9 +47,12 @@ function App() {
           <Route path="/favoritos" element={<Favorites />} />
           <Route path="/carrito" element={<Cart />} />
           <Route path="/suscripciones" element={<Subscriptions />} />
-          
+          <Route path="/dashboard/:userId" element={<DashboardRouter />} />
+          <Route path="/dashboard" element={<BusinessDashboard />} />
+
           {/* Nueva ruta para subastas ganaderas */}
           <Route path="/subastas-ganaderas" element={<LivestockAuctionPage />} />
+          
           
           {/* Rutas de empresas */}
           <Route path="/empresas" element={<CompaniesPage />} />
@@ -58,9 +64,11 @@ function App() {
           
           {/* Detalle de empresa */}
           <Route path="/empresa/:id" element={<CompanyDetailPage />} />
+
           
           <Route path="/faq" element={<FAQ />} />
           <Route path="*" element={<NotFound />} />
+          
         </Routes>
       </Router>
     </AppProvider>

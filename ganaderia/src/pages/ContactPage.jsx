@@ -1,7 +1,11 @@
 import React from 'react';
-import { FiMail, FiPhone, FiMapPin, FiMessageSquare, FiUser, FiAlertCircle, FiUsers, FiAward, FiTrendingUp, FiAlertTriangle, FiX } from 'react-icons/fi';
-import Header from '../organisms/Header';
 import { useNavigate } from 'react-router-dom';
+import { 
+  FiMail, FiPhone, FiMapPin, FiMessageSquare, FiUser, FiAlertCircle, 
+  FiUsers, FiAward, FiTrendingUp, FiAlertTriangle, FiX 
+} from 'react-icons/fi';
+import emailjs from '@emailjs/browser'; // Importa EmailJS
+import Header from '../organisms/Header';
 
 const ContactPage = () => {
   const [formData, setFormData] = React.useState({
@@ -13,7 +17,8 @@ const ContactPage = () => {
   const [formErrors, setFormErrors] = React.useState({});
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [submitSuccess, setSubmitSuccess] = React.useState(false);
-  const [showModal, setShowModal] = React.useState(false); // <-- Nuevo estado para el modal
+  const [submitError, setSubmitError] = React.useState(false); // Estado para errores
+  const [showModal, setShowModal] = React.useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -36,20 +41,45 @@ const ContactPage = () => {
     return errors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => { // Cambiado a async para manejar múltiples promesas
     e.preventDefault();
     const errors = validateForm();
     setFormErrors(errors);
     
     if (Object.keys(errors).length === 0) {
       setIsSubmitting(true);
-      // Simular envío del formulario
-      setTimeout(() => {
-        setIsSubmitting(false);
+      setSubmitSuccess(false);
+      setSubmitError(false);
+
+      const serviceID = 'service_0rn985g';
+      const publicKey = '_kQWxzXTDMi33BzgE';
+
+      // --- 🚨 Plantillas EmailJS 🚨 ---
+      const templateID_empresa = 'template_hih9zfk'; // Para tu correo personal
+      const templateID_cliente = 'template_dzjtcnq'; // Para el correo del cliente (ASEGÚRATE DE CREAR ESTA PLANTILLA EN EMAILJS)
+
+      try {
+        // Envío 1: Correo a la empresa (con los datos del formulario)
+        await emailjs.send(serviceID, templateID_empresa, formData, publicKey);
+        console.log('CORREO A EMPRESA ENVIADO!');
+
+        // Envío 2: Correo de agradecimiento al cliente
+        await emailjs.send(serviceID, templateID_cliente, formData, publicKey);
+        console.log('CORREO DE AGRADECIMIENTO A CLIENTE ENVIADO!');
+        
         setSubmitSuccess(true);
-        setFormData({ name: '', email: '', phone: '', message: '' });
-        setTimeout(() => setSubmitSuccess(false), 5000);
-      }, 1500);
+        setFormData({ name: '', email: '', phone: '', message: '' }); // Limpia el formulario
+      } catch (err) {
+        console.error('FALLO EL ENVÍO DE CORREOS...', err);
+        setSubmitError(true);
+      } finally {
+        setIsSubmitting(false);
+        // Oculta los mensajes después de 5 segundos
+        setTimeout(() => {
+          setSubmitSuccess(false);
+          setSubmitError(false);
+        }, 5000);
+      }
     }
   };
 
@@ -57,18 +87,15 @@ const ContactPage = () => {
     window.open(`https://wa.me/528144384806`, '_blank');
   };
 
-  // Nueva función para el botón de registro de productor
   const handleProducerRegister = () => {
-    setShowModal(true); // Mostrar el modal
+    setShowModal(true);
   };
 
-  // Función para cerrar el modal y navegar
   const handleModalAccept = () => {
     setShowModal(false);
     navigate('/login');
   };
 
-  // Datos de los productores destacados por región
   const producersByRegion = [
     {
       region: 'Tapachula',
@@ -110,10 +137,8 @@ const ContactPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Integración del Header */}
       <Header />
       
-      {/* Contenido principal de la página de contacto */}
       <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
@@ -140,7 +165,7 @@ const ContactPage = () => {
                     </p>
                   </div>
                 </div>
-
+                
                 <div className="flex items-start">
                   <div className="bg-green-100 p-3 rounded-full mr-4">
                     <FiAlertCircle className="text-green-600 text-xl" />
@@ -156,7 +181,7 @@ const ContactPage = () => {
                     </ul>
                   </div>
                 </div>
-
+                
                 <div className="flex items-start">
                   <div className="bg-green-100 p-3 rounded-full mr-4">
                     <FiMapPin className="text-green-600 text-xl" />
@@ -209,6 +234,12 @@ const ContactPage = () => {
                   ¡Gracias por tu mensaje! Nos pondremos en contacto contigo pronto.
                 </div>
               )}
+              
+              {submitError && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                  Hubo un error al enviar el mensaje. Por favor, intenta de nuevo o contáctanos por otro medio.
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
@@ -247,7 +278,7 @@ const ContactPage = () => {
                     />
                     {formErrors.email && <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>}
                   </div>
-
+                  
                   <div>
                     <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
                       Teléfono
@@ -313,7 +344,7 @@ const ContactPage = () => {
             </div>
           </div>
 
-          {/* Nueva sección de productores destacados */}
+          {/* Sección de productores destacados */}
           <div className="mt-16 bg-white p-8 rounded-xl shadow-md">
             <h2 className="text-2xl font-bold text-green-700 mb-6">Productores Destacados en la Costa de Chiapas</h2>
             
@@ -383,7 +414,7 @@ const ContactPage = () => {
               </ul>
               <button
                 className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
-                onClick={handleProducerRegister} // <-- Cambia aquí
+                onClick={handleProducerRegister}
               >
                 Regístrate como productor
               </button>
@@ -392,7 +423,7 @@ const ContactPage = () => {
         </div>
       </main>
 
-      {/* MODAL DE ALERTA MODERNA */}
+      {/* MODAL DE ALERTA */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="bg-white rounded-xl shadow-lg p-8 max-w-sm w-full text-center relative">

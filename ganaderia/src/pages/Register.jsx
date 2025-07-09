@@ -53,6 +53,23 @@ const Register = () => {
     if (!acceptedTerms) {
       newErrors.terms = 'Debes aceptar los términos y condiciones';
     }
+     if (Object.keys(newErrors).length === 0) {
+      setIsLoading(true);
+      
+      // Simular registro exitoso
+      setTimeout(() => {
+        const userData = {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          isSubscribed: false // Por defecto no tiene suscripción
+        };
+        
+        localStorage.setItem('userData', JSON.stringify(userData));
+        
+        setShowSuccess(true);
+      }, 1500);
+    }
     
     setErrors(newErrors);
     

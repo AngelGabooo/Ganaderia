@@ -4,8 +4,10 @@ import { FiShoppingCart, FiHeart, FiChevronDown, FiChevronUp, FiX, FiMenu } from
 import { useAppContext } from '../context/AppContext';
 import Logo from '../atoms/Logo';
 import NavItem from '../molecules/NavItem';
+import { Crown } from 'lucide-react';
 
 const Header = () => {
+  const [user, setUser] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -13,6 +15,13 @@ const Header = () => {
   const [isMobileCompaniesOpen, setIsMobileCompaniesOpen] = useState(false);
   const navigate = useNavigate();
   const { cart, favorites } = useAppContext();
+
+  useEffect(() => {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+  }, []);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => {
@@ -27,6 +36,11 @@ const Header = () => {
     closeMenu();
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('userData');
+    setUser(null);
+    navigate('/login');
+  };
   useEffect(() => {
     const handleScroll = () => {
       if (isMenuOpen) return;

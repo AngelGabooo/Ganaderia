@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Check, Zap, TrendingUp, Crown, ChevronRight, Star, X, User, Mail, FileText, ArrowLeft, 
   Building, Phone, MapPin, Users, Plus, Trash2, Package, Percent, Calendar, 
   Settings, LogOut, Eye, EyeOff, CreditCard, Lock, Home, Image
 } from 'lucide-react';
+import { loadStripe } from '@stripe/stripe-js';
+
+// Configuración de Stripe
+const stripePromise = loadStripe('pk_test_51RhjdkQONMOKCmbZ3lQwmSRWGdqucTxFu2JMter2fFZrd5L4PE9Xbrefn9lyJ7kPeqqFeDnWUM4aynac3bwqT0Po00Urtmah2B');
 
 const Header = ({ user, onLogout }) => {
   const navigate = useNavigate();
@@ -42,398 +46,132 @@ const Header = ({ user, onLogout }) => {
   );
 };
 
-const AcceptedCards = () => (
-  <div className="flex items-center justify-center gap-3 mt-4">
-    <div className="flex items-center gap-2 bg-gray-100 px-2 py-1 rounded">
-      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/visa/visa-original.svg" alt="Visa" className="h-6" />
-      <span className="text-xs">Visa</span>
-    </div>
-    <div className="flex items-center gap-2 bg-gray-100 px-2 py-1 rounded">
-      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mastercard/mastercard-original.svg" alt="Mastercard" className="h-6" />
-      <span className="text-xs">Mastercard</span>
-    </div>
-    <div className="flex items-center gap-2 bg-gray-100 px-2 py-1 rounded">
-      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/americanexpress/americanexpress-original.svg" alt="Amex" className="h-6" />
-      <span className="text-xs">Amex</span>
-    </div>
-  </div>
-);
+const PaymentForm = ({ plan, onPaymentSubmit, onBack, formData }) => {
+  const [isProcessing, setIsProcessing] = useState(false);
 
-const CardEffect = ({ cardData }) => {
-  const [flipped, setFlipped] = useState(false);
-  const [cardType, setCardType] = useState('');
-
-  useEffect(() => {
-    const cleaned = cardData.cardNumber.replace(/\s+/g, '');
-    if (/^4/.test(cleaned)) {
-      setCardType('visa');
-    } else if (/^5[1-5]/.test(cleaned)) {
-      setCardType('mastercard');
-    } else if (/^3[47]/.test(cleaned)) {
-      setCardType('amex');
-    } else {
-      setCardType('');
-    }
-  }, [cardData.cardNumber]);
-
-  return (
-    <div className="perspective-1000 mb-8">
-      <div 
-        className={`relative w-full max-w-md h-56 transition-all duration-500 ease-in-out ${flipped ? 'rotate-y-180' : ''}`}
-        style={{ transformStyle: 'preserve-3d' }}
-        onMouseEnter={() => cardData.cvc && setFlipped(true)}
-        onMouseLeave={() => setFlipped(false)}
-      >
-        <div 
-          className={`absolute w-full h-full bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl shadow-xl p-6 flex flex-col justify-between ${flipped ? 'opacity-0' : 'opacity-100'}`}
-          style={{ backfaceVisibility: 'hidden' }}
-        >
-          <div className="flex justify-between items-start">
-            {cardType === 'visa' && (
-              <img 
-                src="https://img.icons8.com/color/512/visa.png" 
-                alt="Visa" 
-                className="h-10 opacity-90" 
-              />
-            )}
-            {cardType === 'mastercard' && (
-              <img 
-                src="https://w7.pngwing.com/pngs/92/785/png-transparent-mastercard-logo-mastercard-credit-card-payment-visa-nyse-ma-mastercard-logo-text-logo-sign.png" 
-                alt="Mastercard" 
-                className="h-10 opacity-90" 
-              />
-            )}
-            {cardType === 'amex' && (
-              <img 
-                src="https://w7.pngwing.com/pngs/745/624/png-transparent-american-express-logo-credit-card-payment-credit-card-blue-text-label-thumbnail.png" 
-                alt="Amex" 
-                className="h-10 opacity-90" 
-              />
-            )}
-            <div className="text-white text-sm">
-              {cardData.expiryDate || 'MM/AA'}
-            </div>
-          </div>
-          <div className="text-white text-2xl font-mono tracking-wider">
-            {cardData.cardNumber || '•••• •••• •••• ••••'}
-          </div>
-          <div className="flex justify-between items-end">
-            <div className="text-white uppercase text-lg">
-              {cardData.cardName || 'NOMBRE EN TARJETA'}
-            </div>
-            <div className="text-white text-xs">
-              {cardType === 'amex' ? 'AMERICAN EXPRESS' : 'DEBIT/CREDIT'}
-            </div>
-          </div>
-        </div>
-        <div 
-          className={`absolute w-full h-full bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl shadow-xl p-6 flex flex-col justify-between ${flipped ? 'opacity-100' : 'opacity-0'}`}
-          style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}
-        >
-          <div className="h-8 bg-black w-full mt-4"></div>
-          <div className="bg-gray-200 h-10 rounded flex items-center px-4">
-            <div className="text-black font-mono text-sm">
-              {cardData.cvc ? '•••' : 'CVC'}
-            </div>
-          </div>
-          <div className="flex justify-end">
-            {cardType === 'visa' && (
-              <img 
-                src="https://img.icons8.com/color/512/visa.png" 
-                alt="Visa" 
-                className="h-8 opacity-90" 
-              />
-            )}
-            {cardType === 'mastercard' && (
-              <img 
-                src="https://w7.pngwing.com/pngs/92/785/png-transparent-mastercard-logo-mastercard-credit-card-payment-visa-nyse-ma-mastercard-logo-text-logo-sign.png" 
-                alt="Mastercard" 
-                className="h-8 opacity-90" 
-              />
-            )}
-            {cardType === 'amex' && (
-              <img 
-                src="https://w7.pngwing.com/pngs/745/624/png-transparent-american-express-logo-credit-card-payment-credit-card-blue-text-label-thumbnail.png" 
-                alt="Amex" 
-                className="h-8 opacity-90" 
-              />
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const PaymentSuccess = ({ onClose }) => (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center">
-      <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <Check className="w-10 h-10 text-green-600" />
-      </div>
-      <h3 className="text-2xl font-bold text-gray-900 mb-2">¡Pago Exitoso!</h3>
-      <p className="text-gray-600 mb-6">Tu suscripción ha sido activada correctamente.</p>
-      <div className="animate-bounce mb-6">
-        <div className="w-16 h-16 mx-auto relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 rounded-full opacity-20 animate-ping"></div>
-          <div className="absolute inset-2 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
-            <CreditCard className="w-8 h-8 text-white" />
-          </div>
-        </div>
-      </div>
-      <button
-        onClick={onClose}
-        className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-xl transition-colors"
-      >
-        Continuar al Dashboard
-      </button>
-    </div>
-  </div>
-);
-
-const PaymentForm = ({ plan, onPaymentSubmit, isSubmitting }) => {
-  const [cardData, setCardData] = useState({
-    cardNumber: '',
-    cardName: '',
-    expiryDate: '',
-    cvc: ''
-  });
-  const [errors, setErrors] = useState({});
-  const [saveCard, setSaveCard] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showServiceUnavailable, setShowServiceUnavailable] = useState(false);
-
-  const getCardType = (cardNumber) => {
-    const cleaned = cardNumber.replace(/\s+/g, '');
-    if (/^4/.test(cleaned)) return 'Visa';
-    if (/^5[1-5]/.test(cleaned)) return 'Mastercard';
-    if (/^3[47]/.test(cleaned)) return 'American Express';
-    return '';
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCardData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    if (!cardData.cardNumber.trim() || cardData.cardNumber.replace(/\s/g, '').length !== 16) {
-      newErrors.cardNumber = 'Número de tarjeta inválido (16 dígitos)';
-    }
-    if (!cardData.cardName.trim()) {
-      newErrors.cardName = 'Nombre en la tarjeta es requerido';
-    }
-    if (!cardData.expiryDate.trim() || !/^\d{2}\/\d{2}$/.test(cardData.expiryDate)) {
-      newErrors.expiryDate = 'Fecha de expiración inválida (MM/AA)';
-    }
-    if (!cardData.cvc.trim() || cardData.cvc.length !== 3) {
-      newErrors.cvc = 'CVC inválido (3 dígitos)';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      setShowServiceUnavailable(true); // Mostrar el aviso
+    setIsProcessing(true);
+    try {
+      await processStripePayment();
+    } catch (error) {
+      console.error('Error en el pago:', error);
+      alert('Ocurrió un error al procesar el pago. Por favor intenta nuevamente.');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const formatCardNumber = (value) => {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    const matches = v.match(/\d{4,16}/g);
-    const match = matches && matches[0] || '';
-    const parts = [];
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
+  const processStripePayment = async () => {
+    const stripe = await stripePromise;
+    
+    // Mapeo de planes a IDs de producto de Stripe
+    const planToStripeId = {
+      'acumulador': 'prod_Se5hAyn9gVzaal',
+      'vendedor': 'prod_Se5jceBB4zWcSa',
+      'premium': 'prod_Se5ksC8qFoqubi'
+    };
+    
+    const stripeProductId = planToStripeId[plan.id];
+    
+    if (!stripeProductId) {
+      throw new Error('ID de producto de Stripe no configurado para este plan');
     }
-    return parts.length ? parts.join(' ') : value;
-  };
 
-  const handleCardNumberChange = (e) => {
-    const formatted = formatCardNumber(e.target.value);
-    setCardData(prev => ({ ...prev, cardNumber: formatted }));
-  };
+    // Crear sesión de pago directamente desde el frontend (NO RECOMENDADO PARA PRODUCCIÓN)
+    const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Bearer sk_test_51RhjdkQONMOKCmbZUHVndanJ0P14pvBOb1Nnzy2qyZBScJfMpnx99oDW0cJP5FUF8vSaswE3kterhFTLkHKn5QiF00d3UdXxcK`
+      },
+      body: new URLSearchParams({
+        'payment_method_types[]': 'card',
+        'line_items[0][price_data][product]': stripeProductId,
+        'line_items[0][price_data][currency]': 'mxn',
+        'line_items[0][price_data][unit_amount]': plan.price * 100,
+        'line_items[0][price_data][recurring][interval]': 'month',
+        'line_items[0][quantity]': '1',
+        'mode': 'subscription',
+        'success_url': `${window.location.origin}/suscripciones?payment_success=true&session_id={CHECKOUT_SESSION_ID}`,
+        'cancel_url': `${window.location.origin}/suscripciones?payment_canceled=true`,
+        'customer_email': formData.email,
+        'metadata[plan_id]': plan.id,
+        'metadata[plan_name]': plan.name,
+        'metadata[empresa]': formData.nombreEmpresa
+      })
+    });
 
-  const formatExpiryDate = (value) => {
-    const v = value.replace(/[^0-9]/gi, '');
-    if (v.length >= 3) {
-      return `${v.slice(0, 2)}/${v.slice(2, 4)}`;
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Error al crear sesión de pago');
     }
-    return v;
-  };
 
-  const handleExpiryDateChange = (e) => {
-    const formatted = formatExpiryDate(e.target.value);
-    setCardData(prev => ({ ...prev, expiryDate: formatted }));
+    const session = await response.json();
+
+    // Redirigir a Stripe Checkout
+    const result = await stripe.redirectToCheckout({
+      sessionId: session.id
+    });
+
+    if (result.error) {
+      throw result.error;
+    }
   };
 
   return (
     <div className="space-y-6">
-      <CardEffect cardData={cardData} />
       <div className="bg-gray-50 rounded-2xl p-6">
         <h4 className="font-semibold text-gray-900 mb-4">Información de Pago</h4>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Número de Tarjeta *
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                name="cardNumber"
-                value={cardData.cardNumber}
-                onChange={handleCardNumberChange}
-                placeholder="1234 5678 9012 3456"
-                maxLength="19"
-                className={`w-full px-4 py-3 border ${errors.cardNumber ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all`}
-              />
-              {cardData.cardNumber.replace(/\s/g, '').length > 0 && (
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  {getCardType(cardData.cardNumber) === 'Visa' && (
-                    <img src="https://img.icons8.com/color/48/000000/visa.png" alt="Visa" className="h-6" />
-                  )}
-                  {getCardType(cardData.cardNumber) === 'Mastercard' && (
-                    <img src="https://img.icons8.com/color/48/000000/mastercard-logo.png" alt="Mastercard" className="h-6" />
-                  )}
-                  {getCardType(cardData.cardNumber) === 'American Express' && (
-                    <img src="https://img.icons8.com/color/48/000000/amex.png" alt="Amex" className="h-6" />
-                  )}
-                </div>
-              )}
-            </div>
-            {errors.cardNumber && <p className="mt-1 text-sm text-red-600">{errors.cardNumber}</p>}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Nombre en la Tarjeta *
-            </label>
-            <input
-              type="text"
-              name="cardName"
-              value={cardData.cardName}
-              onChange={handleChange}
-              placeholder="JUAN PEREZ"
-              className={`w-full px-4 py-3 border ${errors.cardName ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all`}
-            />
-            {errors.cardName && <p className="mt-1 text-sm text-red-600">{errors.cardName}</p>}
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Fecha Expiración (MM/AA) *
-              </label>
-              <input
-                type="text"
-                name="expiryDate"
-                value={cardData.expiryDate}
-                onChange={handleExpiryDateChange}
-                placeholder="MM/AA"
-                maxLength="5"
-                className={`w-full px-4 py-3 border ${errors.expiryDate ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all`}
-              />
-              {errors.expiryDate && <p className="mt-1 text-sm text-red-600">{errors.expiryDate}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Código CVC *
-              </label>
-              <input
-                type="text"
-                name="cvc"
-                value={cardData.cvc}
-                onChange={handleChange}
-                placeholder="123"
-                maxLength="3"
-                className={`w-full px-4 py-3 border ${errors.cvc ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all`}
-              />
-              {errors.cvc && <p className="mt-1 text-sm text-red-600">{errors.cvc}</p>}
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <div className="text-center">
+              <p className="text-gray-600 mb-4">Serás redirigido a la plataforma segura de Stripe para completar el pago.</p>
+              <p className="text-sm text-gray-500">Tarjetas aceptadas: Visa, Mastercard, American Express</p>
             </div>
           </div>
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="saveCard"
-              checked={saveCard}
-              onChange={() => setSaveCard(!saveCard)}
-              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-            />
-            <label htmlFor="saveCard" className="ml-2 block text-sm text-gray-700">
-              Guardar esta tarjeta para futuros pagos
-            </label>
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center gap-2 text-sm text-gray-500">
-        <Lock className="w-4 h-4 text-green-500" />
-        <span>Pago seguro encriptado con SSL. Aceptamos todas las tarjetas principales.</span>
-          <img src="https://img.icons8.com/color/48/000000/visa.png" alt="Visa" className="h-6" />
-  <img src="https://img.icons8.com/color/48/000000/mastercard-logo.png" alt="Mastercard" className="h-6" />
-  <img src="https://img.icons8.com/color/48/000000/amex.png" alt="Amex" className="h-6" />
-
-      </div>
-      <button
-        type="submit"
-        onClick={handleSubmit}
-        disabled={isSubmitting}
-        className={`w-full ${plan.color} text-white font-semibold py-4 rounded-2xl transition-all duration-300 ${
-          isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 hover:shadow-md'
-        }`}
-      >
-        {isSubmitting ? (
-         <div className="flex items-center gap-2 text-sm text-gray-500">
-  <Lock className="w-4 h-4 text-green-500" />
-          Procesando pago...
-          <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
-</div>
-        ) : (
-          <div className="flex items-center justify-center gap-2">
-            <CreditCard className="w-5 h-5" />
-            Pagar ${plan.price} MXN
-          </div>
-        )}
-      </button>
-      {showSuccess && <PaymentSuccess onClose={() => setShowSuccess(false)} />}
-      {showServiceUnavailable && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center">
-            <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CreditCard className="w-10 h-10 text-yellow-600" />
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Servicio no disponible</h3>
-            <p className="text-gray-600 mb-6">
-              El pago con tarjeta no está disponible por el momento.<br />
-              <span className="font-semibold text-green-600">No se realizará ningún cobro.</span><br />
-              Puedes disfrutar el servicio gratis.
-            </p>
+          
+          <div className="flex justify-between gap-4 mt-6">
             <button
-              onClick={() => {
-                setShowServiceUnavailable(false);
-                // Llama a la función para activar el usuario y mostrar el dashboard
-                onPaymentSubmit({
-                  ...cardData,
-                  saveCard,
-                  metodo: 'Tarjeta (servicio no disponible)'
-                });
-                setShowSuccess(true); // Opcional: puedes mostrar el modal de éxito si lo deseas
-              }}
-              className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-xl transition-colors"
+              type="button"
+              onClick={onBack}
+              className="px-6 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
             >
-              Continuar
+              Volver
+            </button>
+            <button
+              type="submit"
+              disabled={isProcessing}
+              className={`px-6 py-3 ${plan.color} text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-md flex items-center justify-center gap-2 ${isProcessing ? 'opacity-75' : ''}`}
+            >
+              {isProcessing ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Procesando...
+                </>
+              ) : (
+                <>
+                  <CreditCard className="w-5 h-5" />
+                  Pagar ${plan.price} MXN
+                </>
+              )}
             </button>
           </div>
-        </div>
-      )}
+        </form>
+      </div>
+      
+      <div className="flex items-center gap-2 text-sm text-gray-500">
+        <Lock className="w-4 h-4 text-green-500" />
+        <span>Pago seguro encriptado con SSL. Tus datos están protegidos.</span>
+      </div>
     </div>
   );
 };
 
-const SubscriptionPlans = ({ onPurchase }) => {
+const SubscriptionPlans = ({ onPurchase, user }) => { // Añadimos 'user' como prop
   const [hoveredPlan, setHoveredPlan] = useState(null);
   const [visibleSections, setVisibleSections] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -446,9 +184,10 @@ const SubscriptionPlans = ({ onPurchase }) => {
     descripcion: '',
     publicaciones: 1
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formStep, setFormStep] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState('pequeñas');
   const sectionRefs = useRef([]);
+  const navigate = useNavigate(); // Añadimos useNavigate para la navegación
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -473,11 +212,12 @@ const SubscriptionPlans = ({ onPurchase }) => {
     };
   }, []);
 
-  const plans = [
+  const basePlans = [
     {
       id: 'acumulador',
       name: 'Plan Acumulador',
-      price: 150,
+      smallPrice: 150,
+      distributorPrice: 300,
       period: 'mes',
       description: 'Para ganaderos que producen constantemente',
       icon: TrendingUp,
@@ -499,7 +239,8 @@ const SubscriptionPlans = ({ onPurchase }) => {
     {
       id: 'vendedor',
       name: 'Plan Vendedor Rápido',
-      price: 250,
+      smallPrice: 250,
+      distributorPrice: 500,
       period: 'mes',
       description: 'Ideal para ventas urgentes y rápidas',
       icon: Zap,
@@ -523,7 +264,8 @@ const SubscriptionPlans = ({ onPurchase }) => {
     {
       id: 'premium',
       name: 'Plan Oferta Especial',
-      price: 500,
+      smallPrice: 500,
+      distributorPrice: 1000,
       period: 'mes',
       description: 'Máxima exposición para distribuidores grandes',
       icon: Crown,
@@ -550,18 +292,16 @@ const SubscriptionPlans = ({ onPurchase }) => {
     }
   ];
 
+  // Generar planes con precios según la categoría seleccionada
+  const plans = basePlans.map(plan => ({
+    ...plan,
+    price: selectedCategory === 'pequeñas' ? plan.smallPrice : plan.distributorPrice
+  }));
+
   const handlePlanSelect = (plan) => {
     setSelectedPlan(plan);
-    setFormData({
-      nombreEmpresa: '',
-      email: '',
-      telefono: '',
-      direccion: '',
-      descripcion: '',
-      publicaciones: 1
-    });
-    setFormStep(1);
     setShowForm(true);
+    setFormStep(1);
   };
 
   const handleInputChange = (e) => {
@@ -570,55 +310,28 @@ const SubscriptionPlans = ({ onPurchase }) => {
   };
 
   const handleSubmit = (e) => {
-    if (e) e.preventDefault();
-    if (!formData.nombreEmpresa.trim() || !formData.email.trim() || !formData.telefono.trim() || !formData.direccion.trim()) {
-      alert('Por favor completa todos los campos requeridos');
-      return;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      alert('Por favor ingresa un correo electrónico válido');
-      return;
-    }
+    e.preventDefault();
     setFormStep(2);
   };
 
   const handlePaymentSubmit = (paymentInfo) => {
-    setIsSubmitting(true);
-    setTimeout(() => {
-      const userData = {
-        nombreEmpresa: formData.nombreEmpresa,
-        email: formData.email,
-        telefono: formData.telefono,
-        direccion: formData.direccion,
-        descripcion: formData.descripcion,
-        planId: selectedPlan.id,
-        planName: selectedPlan.name,
-        planPrice: selectedPlan.price,
-        publicaciones: formData.publicaciones,
-        fechaRegistro: new Date().toISOString().split('T')[0],
-        logo: null,
-        paymentMethod: paymentInfo.saveCard ? 
-          `Tarjeta guardada (${paymentInfo.cardNumber.slice(-4)})` : 
-          `Tarjeta de crédito/débito (${paymentInfo.cardNumber.slice(-4)})`
-      };
-      onPurchase(userData);
-      setIsSubmitting(false);
-      setShowForm(false);
-      setSelectedPlan(null);
-      setFormData({ nombreEmpresa: '', email: '', telefono: '', direccion: '', descripcion: '', publicaciones: 1 });
-      setFormStep(1);
-    }, 3000);
+    const userData = {
+      ...formData,
+      planId: selectedPlan.id,
+      planName: selectedPlan.name,
+      planPrice: selectedPlan.price,
+      fechaRegistro: new Date().toISOString().split('T')[0],
+      paymentMethod: paymentInfo.metodo
+    };
+    onPurchase(userData);
   };
 
   const closeForm = () => {
     setShowForm(false);
     setSelectedPlan(null);
-    setFormData({ nombreEmpresa: '', email: '', telefono: '', direccion: '', descripcion: '', publicaciones: 1 });
-    setFormStep(1);
   };
 
-  return (
+ return (
     <div className="min-h-screen bg-gray-50 py-16 px-4">
       <div className="max-w-7xl mx-auto">
         <div 
@@ -639,6 +352,58 @@ const SubscriptionPlans = ({ onPurchase }) => {
             Impulsa tu empresa agropecuaria con nuestros planes diseñados específicamente para la costa de Chiapas. 
             <span className="font-semibold text-green-600"> Obtén mayor visibilidad, gestiona clientes y crea ofertas especiales.</span>
           </p>
+          
+          {/* Selector de categoría */}
+          <div className="flex justify-center my-8">
+            <div className="bg-white rounded-2xl p-2 shadow-lg border border-gray-200 inline-flex">
+              <button
+                onClick={() => setSelectedCategory('pequeñas')}
+                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                  selectedCategory === 'pequeñas'
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Pequeñas empresas
+              </button>
+              <button
+                onClick={() => setSelectedCategory('distribuidores')}
+                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                  selectedCategory === 'distribuidores'
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Distribuidores
+              </button>
+            </div>
+          </div>
+          
+          {/* Descripción de categoría */}
+          <div className="max-w-2xl mx-auto">
+            {selectedCategory === 'pequeñas' ? (
+              <p className="text-green-700 bg-green-50 px-4 py-2 rounded-xl border border-green-200">
+                <strong>Pequeñas empresas:</strong> Precios accesibles para productores locales con necesidades básicas de publicación y gestión.
+              </p>
+            ) : (
+              <p className="text-blue-700 bg-blue-50 px-4 py-2 rounded-xl border border-blue-200">
+                <strong>Distribuidores:</strong> Planes con mayor capacidad y beneficios exclusivos para empresas con alto volumen de ventas.
+              </p>
+            )}
+          </div>
+
+          {/* Botón para ir al Dashboard (visible solo si el usuario está logueado) */}
+          {user && (
+            <div className="mt-6">
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-600 transition-all duration-300"
+              >
+                <Home className="w-5 h-5" />
+                Ir al Dashboard Empresarial
+              </button>
+            </div>
+          )}
         </div>
 
         <div 
@@ -665,6 +430,16 @@ const SubscriptionPlans = ({ onPurchase }) => {
                       {plan.badge}
                     </div>
                   )}
+                  
+                  {/* Indicador de categoría */}
+                  <div className={`absolute -top-2 -right-2 px-3 py-1 text-xs font-semibold rounded-full ${
+                    selectedCategory === 'pequeñas' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    {selectedCategory === 'pequeñas' ? 'PEQ' : 'DIST'}
+                  </div>
+                  
                   <div className="relative z-10">
                     <div className={`inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 ${plan.color} rounded-2xl mb-4 md:mb-6 shadow-md`}>
                       <Icon className="w-6 h-6 md:w-8 md:h-8 text-white" />
@@ -955,8 +730,9 @@ const SubscriptionPlans = ({ onPurchase }) => {
               ) : (
                 <PaymentForm 
                   plan={selectedPlan} 
-                  onPaymentSubmit={handlePaymentSubmit} 
-                  isSubmitting={isSubmitting} 
+                  onPaymentSubmit={handlePaymentSubmit}
+                  onBack={() => setFormStep(1)}
+                  formData={formData}
                 />
               )}
               <div className="text-center space-y-2">
@@ -1510,46 +1286,87 @@ const BusinessDashboard = ({ user, onLogout }) => {
   );
 };
 
-const AgroChiapasBusinessApp = () => {
+const Subscriptions = () => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  }, []);
+    // Verificar parámetros de la URL para el éxito del pago
+    const params = new URLSearchParams(location.search);
+    const paymentSuccess = params.get('payment_success') === 'true';
+
+    // Obtener datos del usuario desde localStorage
+    const storedUser = localStorage.getItem('userData');
+    let userData = storedUser ? JSON.parse(storedUser) : null;
+
+    if (paymentSuccess && userData) {
+      // Actualizar el estado del usuario para reflejar la suscripción
+      userData = {
+        ...userData,
+        isSubscribed: true,
+        subscriptionDate: new Date().toISOString(),
+        nextRenewal: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      };
+      localStorage.setItem('userData', JSON.stringify(userData));
+      setUser(userData);
+      // Limpiar los parámetros de la URL
+      navigate('/suscripciones', { replace: true });
+    } else if (userData) {
+      setUser(userData);
+    } else {
+      // Si no hay usuario, redirigir a login
+      navigate('/login', { state: { from: '/suscripciones' } });
+    }
+
+    setIsLoading(false);
+  }, [navigate, location]);
 
   const handlePurchase = (userData) => {
-    setUser(userData);
+  const userWithPlan = {
+    ...userData,
+    isSubscribed: true,
+    subscriptionDate: new Date().toISOString(),
+    nextRenewal: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    planId: userData.planId,
+    planName: userData.planName,
+    planPrice: userData.planPrice,
+    paymentMethod: userData.paymentMethod || 'Stripe',
+    fechaRegistro: userData.fechaRegistro || new Date().toISOString().split('T')[0],
   };
+  localStorage.setItem('userData', JSON.stringify(userWithPlan));
+  setUser(userWithPlan);
+};
 
   const handleLogout = () => {
+    localStorage.removeItem('userData');
     setUser(null);
+    navigate('/login');
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-900">Cargando GANARED</h2>
-          <p className="text-gray-600">Preparando tu experiencia empresarial...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleGoToDashboard = () => {
+    navigate('/dashboard');
+  };
 
-  if (user) {
-    return <BusinessDashboard user={user} onLogout={handleLogout} />;
-  }
-
+ if (isLoading) {
   return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-gray-600">Cargando...</div>
+    </div>
+  );
+}
+
+return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      <SubscriptionPlans onPurchase={handlePurchase} />
+      <Header user={user} onLogout={handleLogout} />
+      {user?.isSubscribed ? (
+        <BusinessDashboard user={user} onLogout={handleLogout} />
+      ) : (
+        <SubscriptionPlans onPurchase={handlePurchase} user={user} /> 
+      )}
     </div>
   );
 };
 
-export default AgroChiapasBusinessApp;
+export default Subscriptions;

@@ -17,12 +17,19 @@ const Login = () => {
     }
     
     setIsLoading(true);
-    setError('');
     
-    // Simulación de login exitoso
+    // Simular login exitoso
     setTimeout(() => {
-      setIsLoading(false);
-      navigate('/'); // Redirige al home después del login
+      const userData = {
+        email,
+        isSubscribed: false // Por defecto no tiene suscripción
+      };
+      
+      localStorage.setItem('userData', JSON.stringify(userData));
+      
+      // Redirigir a la página de origen o a suscripciones
+      const from = location.state?.from || '/suscripciones';
+      navigate(from);
     }, 1000);
   };
 

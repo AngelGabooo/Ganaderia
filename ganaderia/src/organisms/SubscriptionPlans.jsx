@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Check, Zap, TrendingUp, Crown, ChevronRight, Star, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Check, Zap, TrendingUp, Crown, ChevronRight, Star, Loader2 } from 'lucide-react';
 
 const SubscriptionPlans = () => {
+  const navigate = useNavigate();
   const [hoveredPlan, setHoveredPlan] = useState(null);
   const [visibleSections, setVisibleSections] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('pequeñas');
   const sectionRefs = useRef([]);
-  const navigate = useNavigate();
 
-  // Observador de intersección para animaciones al hacer scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -33,20 +32,16 @@ const SubscriptionPlans = () => {
     };
   }, []);
 
-  const handleStartNow = (planId) => {
-    setIsLoading(true);
-    
-    // Pequeño delay para mejor experiencia de usuario
-    setTimeout(() => {
-      navigate(`/suscripciones?plan=${planId}`);
-    }, 300);
+  const handleStartNow = () => {
+    navigate('/suscripciones');
   };
 
-  const plans = [
+  const basePlans = [
     {
       id: 'acumulador',
       name: 'Plan Acumulador',
-      price: 150,
+      smallPrice: 150,
+      distributorPrice: 300,
       period: 'mes',
       description: 'Para ganaderos que producen constantemente',
       icon: TrendingUp,
@@ -64,7 +59,8 @@ const SubscriptionPlans = () => {
     {
       id: 'vendedor',
       name: 'Plan Vendedor Rápido',
-      price: 250,
+      smallPrice: 250,
+      distributorPrice: 500,
       period: 'mes',
       description: 'Ideal para ventas urgentes y rápidas',
       icon: Zap,
@@ -83,7 +79,8 @@ const SubscriptionPlans = () => {
     {
       id: 'premium',
       name: 'Plan Oferta Especial',
-      price: 500,
+      smallPrice: 500,
+      distributorPrice: 1000,
       period: 'mes',
       description: 'Máxima exposición para distribuidores grandes',
       icon: Crown,
@@ -103,20 +100,14 @@ const SubscriptionPlans = () => {
     }
   ];
 
+  const plans = basePlans.map(plan => ({
+    ...plan,
+    price: selectedCategory === 'pequeñas' ? plan.smallPrice : plan.distributorPrice
+  }));
+
   return (
     <div className="min-h-screen bg-gray-50 py-16 px-4 relative">
-      {/* Overlay de carga */}
-      {isLoading && (
-        <div className="fixed inset-0 bg-white/80 z-50 flex items-center justify-center">
-          <div className="flex flex-col items-center">
-            <Loader2 className="w-12 h-12 text-green-600 animate-spin" />
-            <p className="mt-4 text-lg font-medium text-gray-700">Cargando suscripción...</p>
-          </div>
-        </div>
-      )}
-
       <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
         <div 
           id="header-section"
           ref={el => sectionRefs.current[0] = el}
@@ -131,13 +122,49 @@ const SubscriptionPlans = () => {
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
             🐄 Planes de <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600">Suscripción</span>
           </h1>
-          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-8">
             Impulsa tus ventas ganaderas con nuestros planes diseñados específicamente para la costa de Chiapas. 
             <span className="font-semibold text-green-600"> Los compradores navegan gratis</span>, tú solo pagas por vender.
           </p>
+
+          <div className="flex justify-center mb-8">
+            <div className="bg-white rounded-2xl p-2 shadow-lg border border-gray-200 inline-flex">
+              <button
+                onClick={() => setSelectedCategory('pequeñas')}
+                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                  selectedCategory === 'pequeñas'
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Pequeñas empresas
+              </button>
+              <button
+                onClick={() => setSelectedCategory('distribuidores')}
+                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                  selectedCategory === 'distribuidores'
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Distribuidores
+              </button>
+            </div>
+          </div>
+
+          <div className="max-w-2xl mx-auto">
+            {selectedCategory === 'pequeñas' ? (
+              <p className="text-green-700 bg-green-50 px-4 py-2 rounded-xl border border-green-200">
+                <strong>Pequeñas empresas:</strong> Precios accesibles para ganaderos y productores locales
+              </p>
+            ) : (
+              <p className="text-blue-700 bg-blue-50 px-4 py-2 rounded-xl border border-blue-200">
+                <strong>Distribuidores:</strong> Planes premium con mayor alcance y beneficios exclusivos
+              </p>
+            )}
+          </div>
         </div>
 
-        {/* Plans Grid */}
         <div 
           id="plans-section"
           ref={el => sectionRefs.current[1] = el}
@@ -155,26 +182,28 @@ const SubscriptionPlans = () => {
                 key={plan.id}
                 className={`relative group transition-all duration-300 ${
                   isMiddle ? 'md:-translate-y-4' : ''
-                } ${
-                  visibleSections.includes('plans-section') ? 
-                    `delay-${200 + (index * 100)}` : ''
                 }`}
                 onMouseEnter={() => setHoveredPlan(plan.id)}
                 onMouseLeave={() => setHoveredPlan(null)}
               >
-                {/* Card */}
                 <div className={`relative bg-white rounded-3xl p-6 md:p-8 shadow-lg transition-all duration-300 ${
                   isHovered ? 'scale-105 shadow-xl' : 'hover:shadow-xl'
                 } ${isMiddle ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}`}>
                   
-                  {/* Badge */}
                   {plan.badge && (
                     <div className={`absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 ${plan.badgeColor} rounded-full text-sm font-semibold`}>
                       {plan.badge}
                     </div>
                   )}
 
-                  {/* Header */}
+                  <div className={`absolute -top-2 -right-2 px-3 py-1 text-xs font-semibold rounded-full ${
+                    selectedCategory === 'pequeñas' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    {selectedCategory === 'pequeñas' ? 'PE' : 'DIST'}
+                  </div>
+
                   <div className="relative z-10">
                     <div className={`inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 ${plan.color} rounded-2xl mb-4 md:mb-6 shadow-md`}>
                       <Icon className="w-6 h-6 md:w-8 md:h-8 text-white" />
@@ -183,14 +212,17 @@ const SubscriptionPlans = () => {
                     <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
                     <p className="text-gray-600 mb-4 md:mb-6">{plan.description}</p>
                     
-                    {/* Price */}
                     <div className="flex items-baseline gap-2 mb-6 md:mb-8">
                       <span className="text-3xl md:text-4xl font-bold text-gray-900">${plan.price}</span>
                       <span className="text-gray-500">MXN/{plan.period}</span>
+                      {selectedCategory === 'distribuidores' && (
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full ml-2">
+                          Premium
+                        </span>
+                      )}
                     </div>
                   </div>
 
-                  {/* Features */}
                   <div className="space-y-3 md:space-y-4 mb-6 md:mb-8">
                     {plan.features.map((feature, featureIndex) => (
                       <div key={featureIndex} className="flex items-start gap-3">
@@ -202,26 +234,17 @@ const SubscriptionPlans = () => {
                     ))}
                   </div>
 
-                  {/* CTA Button */}
                   <button 
-                    onClick={() => handleStartNow(plan.id)}
+                    onClick={handleStartNow}
                     className={`w-full ${plan.color} text-white font-semibold py-3 md:py-4 px-4 md:px-6 rounded-2xl transition-all duration-300 ${
                       isHovered ? 'scale-105 shadow-md' : 'hover:scale-105 hover:shadow-md'
                     } flex items-center justify-center gap-2`}
-                    disabled={isLoading}
                   >
-                    {isLoading ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <>
-                        Comenzar Ahora
-                        <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                      </>
-                    )}
+                    Comenzar Ahora
+                    <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                   </button>
                 </div>
 
-                {/* Floating Elements */}
                 {isHovered && (
                   <div className="absolute -top-2 -right-2 w-5 h-5 md:w-6 md:h-6 bg-yellow-400 rounded-full flex items-center justify-center animate-bounce">
                     <Star className="w-2 h-2 md:w-3 md:h-3 text-yellow-800" />
@@ -232,7 +255,6 @@ const SubscriptionPlans = () => {
           })}
         </div>
 
-        {/* Bottom Section */}
         <div 
           id="bottom-section"
           ref={el => sectionRefs.current[2] = el}
@@ -260,7 +282,6 @@ const SubscriptionPlans = () => {
           </div>
         </div>
 
-        {/* Trust Indicators */}
         <div 
           id="trust-section"
           ref={el => sectionRefs.current[3] = el}
