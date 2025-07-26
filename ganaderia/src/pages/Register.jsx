@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import emailjs from '@emailjs/browser';
 
 const Register = () => {
@@ -22,6 +23,25 @@ const Register = () => {
   const EMAILJS_USER_TEMPLATE_ID = 'template_14ub86p';
   const EMAILJS_OWNER_TEMPLATE_ID = 'template_xwasumn';
   const EMAILJS_PUBLIC_KEY = '4Ij76aQJBG6qaKDik';
+
+  const validatePassword = (password) => {
+    const hasMinLength = password.length >= 8;
+    const hasNumber = /\d/.test(password);
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    
+    const isStrong = hasMinLength && hasNumber && hasUpperCase && hasLowerCase;
+    
+    return {
+      isValid: isStrong,
+      requirements: {
+        hasMinLength,
+        hasNumber,
+        hasUpperCase,
+        hasLowerCase
+      }
+    };
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,8 +70,11 @@ const Register = () => {
     }
     if (!formData.password) {
       newErrors.password = 'Contraseña es requerida';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Mínimo 6 caracteres';
+    } else {
+      const passwordValidation = validatePassword(formData.password);
+      if (!passwordValidation.isValid) {
+        newErrors.password = 'La contraseña no cumple con los requisitos de seguridad';
+      }
     }
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Las contraseñas no coinciden';
@@ -66,37 +89,33 @@ const Register = () => {
       setIsLoading(true);
 
       try {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        const userData = {
+        // Registrar usuario en la API
+        const response = await axios.post('http://localhost:5000/api/auth/register', {
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
-          isSubscribed: false
-        };
+          password: formData.password,
+        });
 
-        localStorage.setItem('userData', JSON.stringify(userData));
+        // Guardar datos del usuario y token en localStorage
+        localStorage.setItem('userData', JSON.stringify(response.data.user));
+        localStorage.setItem('token', response.data.token);
 
-        // Enviar correo al usuario
-        // CAMBIO: Asegúrate que 'email' coincida con {{email}} en tu plantilla
+        // Enviar correos con EmailJS
         const userTemplateParams = {
           user_name: `${formData.firstName} ${formData.lastName}`,
-          email: formData.email, // <-- CAMBIO CLAVE: Cambiado de user_email a email
+          email: formData.email,
           message: '¡Gracias por registrarte en nuestro sistema de ganadería!'
         };
 
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_USER_TEMPLATE_ID, userTemplateParams, EMAILJS_PUBLIC_KEY);
         console.log('Correo enviado al usuario!');
 
-        // Enviar correo al dueño de la empresa
-        // CAMBIO: Ajustes para que coincida con tu plantilla "Feedback Request"
         const ownerTemplateParams = {
           subject: 'Nuevo Registro en el Sistema Ganadero',
           from_name: `${formData.firstName} ${formData.lastName}`,
           from_email: formData.email,
-          to_email: 'a20624646@gmail.com', // <-- ADD THIS LINE if the template expects {{to_email}}
-          // OR if the template expects {{email}}:
-          // email: 'a20624646@gmail.com',
+          to_email: 'a20624646@gmail.com',
           message: `Un nuevo usuario se ha registrado:\nNombre: ${formData.firstName} ${formData.lastName}\nEmail: ${formData.email}`
         };
 
@@ -107,7 +126,10 @@ const Register = () => {
 
       } catch (error) {
         console.error('Error al registrar o enviar correos:', error);
-        alert('Ocurrió un error al registrar tu cuenta. Por favor, inténtalo de nuevo.');
+        setErrors({
+          ...errors,
+          api: error.response?.data?.message || 'Ocurrió un error al registrar tu cuenta. Por favor, inténtalo de nuevo.'
+        });
       } finally {
         setIsLoading(false);
       }
@@ -192,6 +214,21 @@ const Register = () => {
           <div className="bg-white/80 backdrop-blur-xl py-10 px-8 shadow-2xl sm:rounded-3xl border border-white/20 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 animate-shimmer"></div>
             
+            {errors.api && (
+              <div className="mb-6 bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-2xl p-4 animate-fade-in">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-red-800">{errors.api}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
@@ -321,6 +358,63 @@ const Register = () => {
                       )}
                     </button>
                   </div>
+                  
+                  {formData.password && (
+                    <div className="bg-white/50 p-3 rounded-lg border border-slate-200">
+                      <p className="text-sm font-medium text-slate-700 mb-2">La contraseña debe contener:</p>
+                      <ul className="text-xs space-y-1">
+                        <li className={`flex items-center ${formData.password.length >= 8 ? 'text-emerald-600' : 'text-slate-500'}`}>
+                          {formData.password.length >= 8 ? (
+                            <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          ) : (
+                            <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                          Mínimo 8 caracteres
+                        </li>
+                        <li className={`flex items-center ${/[A-Z]/.test(formData.password) ? 'text-emerald-600' : 'text-slate-500'}`}>
+                          {/[A-Z]/.test(formData.password) ? (
+                            <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          ) : (
+                            <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                          Al menos una mayúscula
+                        </li>
+                        <li className={`flex items-center ${/[a-z]/.test(formData.password) ? 'text-emerald-600' : 'text-slate-500'}`}>
+                          {/[a-z]/.test(formData.password) ? (
+                            <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          ) : (
+                            <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                          Al menos una minúscula
+                        </li>
+                        <li className={`flex items-center ${/\d/.test(formData.password) ? 'text-emerald-600' : 'text-slate-500'}`}>
+                          {/\d/.test(formData.password) ? (
+                            <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          ) : (
+                            <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                          Al menos un número
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                  
                   {errors.password && (
                     <p className="text-sm text-red-600 flex items-center animate-fade-in">
                       <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">

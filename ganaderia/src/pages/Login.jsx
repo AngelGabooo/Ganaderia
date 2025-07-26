@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -9,39 +10,42 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       setError('Por favor complete todos los campos');
       return;
     }
-    
+
     setIsLoading(true);
-    
-    // Simular login exitoso
-    setTimeout(() => {
-      const userData = {
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
         email,
-        isSubscribed: false // Por defecto no tiene suscripción
-      };
-      
-      localStorage.setItem('userData', JSON.stringify(userData));
-      
+        password,
+      });
+
+      // Guardar datos del usuario y token en localStorage
+      localStorage.setItem('userData', JSON.stringify(response.data.user));
+      localStorage.setItem('token', response.data.token);
+
       // Redirigir a la página de origen o a suscripciones
       const from = location.state?.from || '/suscripciones';
       navigate(from);
-    }, 1000);
+    } catch (error) {
+      setError(error.response?.data?.message || 'Ocurrió un error al iniciar sesión. Por favor, inténtalo de nuevo.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-emerald-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Elementos decorativos de fondo */}
       <div className="absolute top-0 left-0 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
       <div className="absolute bottom-0 right-0 w-72 h-72 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse animation-delay-4000"></div>
 
-      {/* Botón para regresar al home */}
-      <button 
+      <button
         onClick={() => navigate('/')}
         className="absolute top-6 left-6 z-50 flex items-center text-slate-600 hover:text-blue-600 px-4 py-2 rounded-xl transition-all duration-300 hover:bg-white/80 backdrop-blur-sm border border-white/20 hover:border-blue-200 hover:shadow-lg group"
       >
@@ -50,20 +54,19 @@ const Login = () => {
         </svg>
         <span className="font-medium">Regresar al Inicio</span>
       </button>
-      
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        {/* Logo con efecto glassmorphism */}
         <div className="flex justify-center mb-8">
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-emerald-600 rounded-full blur-md opacity-30 animate-pulse"></div>
-            <img 
-              src="https://media.istockphoto.com/id/1369530083/es/vector/animales-de-granja.jpg?s=612x612&w=0&k=20&c=XqJpgMtQ6DbKTqk-H3vD5Eml3uxyKzrL0OW4WC5hPPU=" 
-              alt="Logo Ganadería" 
+            <img
+              src="https://media.istockphoto.com/id/1369530083/es/vector/animales-de-granja.jpg?s=612x612&w=0&k=20&c=XqJpgMtQ6DbKTqk-H3vD5Eml3uxyKzrL0OW4WC5hPPU="
+              alt="Logo Ganadería"
               className="relative h-24 w-24 rounded-full object-cover border-4 border-white shadow-2xl ring-4 ring-blue-100/50"
             />
           </div>
         </div>
-        
+
         <div className="text-center">
           <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2">
             Bienvenido de vuelta
@@ -82,9 +85,8 @@ const Login = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="bg-white/80 backdrop-blur-xl py-10 px-8 shadow-2xl sm:rounded-3xl border border-white/20 relative overflow-hidden">
-          {/* Efecto de brillo sutil */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 animate-shimmer"></div>
-          
+
           {error && (
             <div className="mb-6 bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-2xl p-4 animate-fade-in">
               <div className="flex items-center">
@@ -176,9 +178,9 @@ const Login = () => {
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-semibold text-blue-600 hover:text-blue-500 transition-colors duration-200">
+                <Link to="/forgot-password" className="font-semibold text-blue-600 hover:text-blue-500 transition-colors duration-200">
                   ¿Olvidaste tu contraseña?
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -189,7 +191,7 @@ const Login = () => {
                 className="group relative w-full flex justify-center py-4 px-6 border border-transparent rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 hover:shadow-2xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transform"
               >
                 <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600 to-emerald-600 rounded-2xl blur-md opacity-30 group-hover:opacity-50 transition duration-300"></span>
-                
+
                 {isLoading ? (
                   <div className="relative flex items-center">
                     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

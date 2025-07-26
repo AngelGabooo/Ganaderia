@@ -41,6 +41,7 @@ const Header = () => {
     setUser(null);
     navigate('/login');
   };
+
   useEffect(() => {
     const handleScroll = () => {
       if (isMenuOpen) return;
@@ -119,6 +120,12 @@ const Header = () => {
                   Todas las empresas
                 </Link>
                 <Link 
+                  to="/servicio-medico" 
+                  className="block px-4 py-2 text-gray-800 hover:bg-gray-100 transition-colors font-medium"
+                >
+                  Servicio Médico
+                </Link>
+                <Link 
                   to="/faq" 
                   className="block px-4 py-2 text-gray-800 hover:bg-gray-100 transition-colors font-medium"
                 >
@@ -166,12 +173,21 @@ const Header = () => {
               SUSCRIPCIONES
             </button>
 
-            <button
-              onClick={() => handleNavigation('/login')}
-              className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-500 transition-colors duration-300 font-medium shadow-md hover:shadow-lg"
-            >
-              LOGIN
-            </button>
+            {user ? (
+              <button
+                onClick={handleLogout}
+                className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-500 transition-colors duration-300 font-medium shadow-md hover:shadow-lg"
+              >
+                CERRAR SESIÓN
+              </button>
+            ) : (
+              <button
+                onClick={() => handleNavigation('/login')}
+                className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-500 transition-colors duration-300 font-medium shadow-md hover:shadow-lg"
+              >
+                LOGIN
+              </button>
+            )}
           </div>
 
           <button
@@ -260,6 +276,13 @@ const Header = () => {
                     Todas las empresas
                   </Link>
                   <Link
+                    to="/servicio-medico"
+                    onClick={closeMenu}
+                    className="block text-white hover:text-amber-100 text-lg font-medium"
+                  >
+                    Servicio Médico
+                  </Link>
+                  <Link
                     to="/faq"
                     onClick={closeMenu}
                     className="block text-white hover:text-amber-100 text-lg font-medium"
@@ -319,12 +342,21 @@ const Header = () => {
                 SUSCRIPCIONES
               </button>
 
-              <button
-                onClick={() => handleNavigation('/login')}
-                className="w-full bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-500 transition-colors"
-              >
-                LOGIN
-              </button>
+              {user ? (
+                <button
+                  onClick={handleLogout}
+                  className="w-full bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-500 transition-colors"
+                >
+                  CERRAR SESIÓN
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleNavigation('/login')}
+                  className="w-full bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-500 transition-colors"
+                >
+                  LOGIN
+                </button>
+              )}
             </div>
           </nav>
         </div>
