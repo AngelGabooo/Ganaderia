@@ -216,7 +216,7 @@ const SubscriptionPlans = ({ onPurchase, user }) => { // Añadimos 'user' como p
     {
       id: 'acumulador',
       name: 'Plan Acumulador',
-      smallPrice: 1500,
+      smallPrice: 150,
       distributorPrice: 300,
       period: 'mes',
       description: 'Para ganaderos que producen constantemente',
@@ -239,7 +239,7 @@ const SubscriptionPlans = ({ onPurchase, user }) => { // Añadimos 'user' como p
     {
       id: 'vendedor',
       name: 'Plan Vendedor Rápido',
-      smallPrice: 25250,
+      smallPrice: 250,
       distributorPrice: 500,
       period: 'mes',
       description: 'Ideal para ventas urgentes y rápidas',
@@ -264,7 +264,7 @@ const SubscriptionPlans = ({ onPurchase, user }) => { // Añadimos 'user' como p
     {
       id: 'premium',
       name: 'Plan Oferta Especial',
-      smallPrice: 50000,
+      smallPrice: 500,
       distributorPrice: 200000,
       period: 'mes',
       description: 'Máxima exposición para distribuidores grandes',
